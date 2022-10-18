@@ -1,21 +1,19 @@
 package controllers;
 
+import database.models.FoodItem;
 import helpers.DisplayFoodItems;
 import helpers.InfoStore;
 import helpers.ScreenHandler;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
 import java.util.List;
-import database.models.FoodItem;
-import database.models.Item;
+import java.util.Set;
+
+import javafx.scene.image.ImageView;
 
 /*
  * Controller for the new/edit list page
@@ -24,49 +22,68 @@ public class NewListSceneController {
 
 	@FXML
     private ListView<String> newListListView;
+	@FXML
+	private TextField newListTitle;
+	@FXML
+	private TextField newListDescription;
+
+	@FXML
+	private ImageView newListImageView;
+
+	@FXML
+	private ImageView crossImageView;
 
 	InfoStore store = InfoStore.getInstance();
-	List<Item> itemList = store.getList();
+	Set<FoodItem> itemList = store.getItems();
 
 	@FXML
 	public void initialize() {
-		itemList = store.getList();
+		itemList = store.getItems();
+
+		colourImages();
 
 		List<String> foodNames = new ArrayList<String>();
-		foodNames = DisplayFoodItems.ListFoodItems(itemList);
+		foodNames = DisplayFoodItems.ListFoodItems(itemList.stream().toList());
+
 		newListListView.getItems().addAll(foodNames);
 		// load stuff into labels
-		// individualListSceneTitle.setText("HI");
-		// individualListSceneDescription.setText("HI");
-		// evaluationText.setText("HI");
+		String title = store.getTitle();
+		String description = store.getDescription();
+
+		newListTitle.setText(title);
+		newListDescription.setText(description);
 		
 	}
 
-	// @FXML private Button gamesModuleButton = new Button();
-	// @FXML private Button quitButton = new Button();
-	// @FXML private ChoiceBox<String> topicChoiceBox = new ChoiceBox<>();
-	// @FXML private Label achievementsLabel = new Label();
-	// @FXML private Label helpLabel = new Label();
-
 	// Runs when an item is pressed
 	public void activateItemPopup(ActionEvent e) {
-		 ScreenHandler.changeTo("searchScene");
-	}
-
-	// Runs when the search button is pressed
-	public void activateSearchPopup(ActionEvent e) {
-		// ScreenHandler.changeTo("gameTopic");
+		store.setTitle(newListTitle.getText());
+		store.setDescription(newListDescription.getText());
+		ScreenHandler.changeTo("searchScene");
 	}
 
 	// Runs when the back button is pressed
 	public void buttonBack(ActionEvent e) {
+		store.resetInfoStore();
 		ScreenHandler.changeTo("main");
 	}
 
 	/// Runs when the submit button is pressed
 	public void buttonSubmit(ActionEvent e) {
+
+		store.setTitle(newListTitle.getText());
+		store.setDescription(newListDescription.getText());
+		store.persistItems();
+
 		ScreenHandler.changeTo("main");
 		//insert submission to database
+	}
+
+	public void colourImages() {
+		List<ImageView> imageViewList = new ArrayList<ImageView>();
+		imageViewList.add(crossImageView);
+		imageViewList.add(newListImageView);
+		ScreenHandler.colourImages(imageViewList);
 	}
 
 }
