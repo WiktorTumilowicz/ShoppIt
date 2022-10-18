@@ -1,21 +1,18 @@
 package controllers;
 
+import database.models.FoodItem;
 import helpers.DisplayFoodItems;
 import helpers.InfoStore;
 import helpers.ScreenHandler;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import database.models.FoodItem;
-import database.models.Item;
+import java.util.Set;
 
 /*
  * Controller for the display individual list page
@@ -24,9 +21,12 @@ public class IndividualListSceneController {
 
 	@FXML
     private ListView<String> ItemListView;
+
+	@FXML
+	ImageView arrowImageView;
 	
 	InfoStore store = InfoStore.getInstance();
-	List<Item> itemList;
+	Set<FoodItem> itemSet;
 
 	// @FXML private Button gamesModuleButton = new Button();
 	// @FXML private Button quitButton = new Button();
@@ -34,23 +34,22 @@ public class IndividualListSceneController {
 	// @FXML private Label achievementsLabel = new Label();
 	// @FXML private Label helpLabel = new Label();
 
-	// @FXML private Text individualListSceneTitle = new Text();
-	// @FXML private Text individualListSceneDescription = new Text();
-	// @FXML private ListView itemListView = new ListView();
-	// @FXML private Text evaluationText = new Text();
+	 @FXML private Text IndividualListSceneTitle;
+	 @FXML private Text IndividualListSceneDescription;
 
 	@FXML
 	public void initialize() {
-		itemList = store.getList();
 
-		List<String> foodNames = new ArrayList<String>();
-		foodNames = DisplayFoodItems.ListFoodItems(itemList);
+		colourImages();
+
+		itemSet = store.getItems();
+
+		List<String> foodNames = DisplayFoodItems.ListFoodItems(itemSet.stream().toList());
 		ItemListView.getItems().addAll(foodNames);
-		// load stuff into labels
-		// individualListSceneTitle.setText("HI");
-		// individualListSceneDescription.setText("HI");
-		// evaluationText.setText("HI");
-		
+
+		// Load list title and description
+		IndividualListSceneTitle.setText(store.getTitle());
+		IndividualListSceneDescription.setText(store.getDescription());
 	}
 
 	// Runs when an item is pressed
@@ -66,12 +65,19 @@ public class IndividualListSceneController {
 
 	// Runs when the back button is pressed
 	public void buttonBack(ActionEvent e) {
+		store.resetInfoStore();
 		ScreenHandler.changeTo("main");
 	}
 
 	/// Runs when the edit button is pressed
 	public void buttonEdit(ActionEvent e) {
 		ScreenHandler.changeTo("newListScene");
+	}
+
+	public void colourImages() {
+		List<ImageView> imageViewList = new ArrayList<ImageView>();
+		imageViewList.add(arrowImageView);
+		ScreenHandler.colourImages(imageViewList);
 	}
 
 }
